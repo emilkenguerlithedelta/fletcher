@@ -29,6 +29,6 @@ final.loc[final['result'] == 0, 'Delta LI Follower'] = False
 final['Do they have a CTO on LI'] = final['cto']
 final.loc[final['cto'] != True, 'Do they have a CTO on LI'] = False
 
-final.drop(['cto', 'fullName', 'result', 'title'], axis=1, inplace=True)
+final.drop(['cto', 'fullName', 'result', 'title', 'cofounder'], axis=1, inplace=True)
 
 final.to_csv('yeboi.csv')
