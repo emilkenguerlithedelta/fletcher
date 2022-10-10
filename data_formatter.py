@@ -6,6 +6,8 @@ pd.options.mode.chained_assignment = None
 df = pd.read_csv('final.csv')
 df1 = pd.read_csv('result.csv')
 df2 = pd.read_csv('followers.csv')
+df3 = pd.read_csv('crunchbase.csv')
+df4 = pd.read_csv('funding.csv')
 
 exclude_list = ['director', 'assistant', 'instructor', 'actor']
 excludes_df = df1.loc[~df1['title'].str.contains('|'.join(exclude_list), case=False, na=False)]
@@ -49,6 +51,17 @@ contains_talent = (df.companyName
 contains_talent = (pd.concat([df.companyName, contains_talent], axis=1, ignore_index=True)
  .rename(columns={0: 'companyName', 1: 'talentCount'}))
 
+
+# Crunchbase
+
+
+
+
+# Funding
+
+transactions = df4.groupby('Transaction Name').sum()
+# print(df3)
+
 final = pd.merge(df, contains_cto[['companyName', 'cto', 'fullName', 'title', 'cofounder']],on='companyName', how='left')
 final = pd.merge(final, rhs[['companyName', 'count']],on='companyName', how='left')
 final = pd.merge(final, contains_talent[['companyName', 'talentCount']],on='companyName', how='left')
@@ -72,6 +85,17 @@ final.loc[final['result'] == 0, 'Delta LI Follower'] = False
 
 final['Do they have a CTO on LI'] = final['cto']
 final.loc[final['cto'] != True, 'Do they have a CTO on LI'] = False
+
+final['Industry'] = df3['Industries']
+final['Company Size (LI)'] = df3['Number of Employees']
+final['founded year'] = df3['Founded Date'].str.slice(0,4)
+final.loc[df3['Number of Funding Rounds'] > 0, 'Funding raised?'] = True
+final.loc[df3['Number of Funding Rounds'] == 0, 'Funding raised?'] = False
+final['Total raised'] = df3['Total Funding Amount Currency (in USD)']
+final['Number of rounds'] = df3['Number of Funding Rounds']
+final['Number of exits'] = df3['Number of Exits']
+final['Acquisitions'] = df3['Number of Acquisitions']
+final['Time since last funding round'] = df3['Last Funding Date']
 
 final.drop(['cto', 'fullName', 'result', 'title', 'cofounder', 'count', 'talentCount'], axis=1, inplace=True)
 
