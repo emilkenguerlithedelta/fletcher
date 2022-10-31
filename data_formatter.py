@@ -51,16 +51,22 @@ contains_talent = (df.companyName
 contains_talent = (pd.concat([df.companyName, contains_talent], axis=1, ignore_index=True)
  .rename(columns={0: 'companyName', 1: 'talentCount'}))
 
-
-# Crunchbase
-
-
-
-
 # Funding
 
-transactions = df4.groupby('Transaction Name').sum()
-# print(df3)
+transactions = df4.groupby(['Transaction Name', 'Organization Name', 'Funding Type']).sum().reset_index()
+transactions['companyName'] = transactions['Organization Name']
+
+preseed = transactions.loc[transactions['Funding Type'].str.contains('Pre-Seed', case=False, na=False)]
+preseed['preseed'] = preseed['Money Raised Currency (in USD)']
+
+seed = transactions.loc[transactions['Funding Type'].str.contains('Seed', case=False, na=False)]
+seed['seed'] = seed['Money Raised Currency (in USD)']
+
+seriesA = transactions.loc[transactions['Funding Type'].str.contains('Series A', case=False, na=False)]
+seriesA['seriesA'] = seriesA['Money Raised Currency (in USD)']
+
+seriesB = transactions.loc[transactions['Funding Type'].str.contains('Series B', case=False, na=False)]
+seriesB['seriesB'] = seriesB['Money Raised Currency (in USD)']
 
 final = pd.merge(df, contains_cto[['companyName', 'cto', 'fullName', 'title', 'cofounder']],on='companyName', how='left')
 final = pd.merge(final, rhs[['companyName', 'count']],on='companyName', how='left')
@@ -97,6 +103,15 @@ final['Number of exits'] = df3['Number of Exits']
 final['Acquisitions'] = df3['Number of Acquisitions']
 final['Time since last funding round'] = df3['Last Funding Date']
 
-final.drop(['cto', 'fullName', 'result', 'title', 'cofounder', 'count', 'talentCount'], axis=1, inplace=True)
+final = pd.merge(final, preseed[['companyName', 'preseed']],on='companyName', how='left')
+final = pd.merge(final, seed[['companyName', 'seed']],on='companyName', how='left')
+final = pd.merge(final, seriesA[['companyName', 'seriesA']],on='companyName', how='left')
+final = pd.merge(final, seriesB[['companyName', 'seriesB']],on='companyName', how='left')
 
+final['Pre seed size'] = final['preseed']
+final['Seed size'] = final['seed']
+final['Series A size'] = final['seriesA']
+final['Series B size'] = final['seriesB']
+
+final.drop(['cto', 'fullName', 'result', 'title', 'cofounder', 'count', 'talentCount', 'preseed', 'seed', 'seriesA', 'seriesB'], axis=1, inplace=True)
 final.to_csv('yeboi.csv')
