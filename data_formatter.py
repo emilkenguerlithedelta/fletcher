@@ -53,6 +53,9 @@ contains_talent = (pd.concat([df.companyName, contains_talent], axis=1, ignore_i
 
 # Funding
 
+largest_round = df4.groupby(['Organization Name'])['Money Raised Currency (in USD)'].max().reset_index(name="max")
+largest_round['companyName'] = largest_round['Organization Name']
+
 transactions = df4.groupby(['Transaction Name', 'Organization Name', 'Funding Type']).sum().reset_index()
 transactions['companyName'] = transactions['Organization Name']
 
@@ -67,6 +70,8 @@ seriesA['seriesA'] = seriesA['Money Raised Currency (in USD)']
 
 seriesB = transactions.loc[transactions['Funding Type'].str.contains('Series B', case=False, na=False)]
 seriesB['seriesB'] = seriesB['Money Raised Currency (in USD)']
+
+# Data merging
 
 final = pd.merge(df, contains_cto[['companyName', 'cto', 'fullName', 'title', 'cofounder']],on='companyName', how='left')
 final = pd.merge(final, rhs[['companyName', 'count']],on='companyName', how='left')
@@ -107,11 +112,13 @@ final = pd.merge(final, preseed[['companyName', 'preseed']],on='companyName', ho
 final = pd.merge(final, seed[['companyName', 'seed']],on='companyName', how='left')
 final = pd.merge(final, seriesA[['companyName', 'seriesA']],on='companyName', how='left')
 final = pd.merge(final, seriesB[['companyName', 'seriesB']],on='companyName', how='left')
+final = pd.merge(final, largest_round[['companyName', 'max']],on='companyName', how='left')
 
 final['Pre seed size'] = final['preseed']
 final['Seed size'] = final['seed']
 final['Series A size'] = final['seriesA']
 final['Series B size'] = final['seriesB']
+final['Largest Round Amount'] = final['max']
 
-final.drop(['cto', 'fullName', 'result', 'title', 'cofounder', 'count', 'talentCount', 'preseed', 'seed', 'seriesA', 'seriesB'], axis=1, inplace=True)
+final.drop(['cto', 'fullName', 'result', 'title', 'cofounder', 'count', 'talentCount', 'preseed', 'seed', 'seriesA', 'seriesB', 'max'], axis=1, inplace=True)
 final.to_csv('yeboi.csv')
