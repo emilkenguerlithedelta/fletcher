@@ -100,9 +100,9 @@ final.loc[final['cto'] != True, 'Do they have a CTO on LI'] = False
 final['Industry'] = df3['Industries']
 final['Company Size (LI)'] = df3['Number of Employees']
 final['founded year'] = df3['Founded Date'].str.slice(0,4)
-print(final)
-# final.loc[df3['Number of Funding Rounds'] > 0, 'Funding raised?'] = True
-# final.loc[df3['Number of Funding Rounds'] == 0, 'Funding raised?'] = False
+
+final.loc[df3['Number of Funding Rounds'] > 0, 'Funding raised?'] = True
+final.loc[df3['Number of Funding Rounds'] == 0, 'Funding raised?'] = False
 final['Total raised'] = df3['Total Funding Amount Currency (in USD)']
 final['Number of rounds'] = df3['Number of Funding Rounds']
 final['Number of exits'] = df3['Number of Exits']
