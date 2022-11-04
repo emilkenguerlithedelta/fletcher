@@ -9,7 +9,7 @@ df2 = pd.read_csv('followers.csv')
 df3 = pd.read_csv('crunchbase.csv')
 df4 = pd.read_csv('funding.csv')
 
-exclude_list = ['director', 'assistant', 'instructor', 'actor']
+exclude_list = ['director', 'assistant', 'instructor', 'actor', 'co-cto']
 excludes_df = df1.loc[~df1['title'].str.contains('|'.join(exclude_list), case=False, na=False)]
 
 contains_cto = excludes_df.loc[excludes_df['title'].str.contains('cto', case=False, na=False)]
@@ -62,7 +62,7 @@ transactions['companyName'] = transactions['Organization Name']
 preseed = transactions.loc[transactions['Funding Type'].str.contains('Pre-Seed', case=False, na=False)]
 preseed['preseed'] = preseed['Money Raised Currency (in USD)']
 
-seed = transactions.loc[transactions['Funding Type'].str.contains('Seed', case=False, na=False)]
+seed = transactions.loc[transactions['Funding Type'] == 'Seed']
 seed['seed'] = seed['Money Raised Currency (in USD)']
 
 seriesA = transactions.loc[transactions['Funding Type'].str.contains('Series A', case=False, na=False)]
@@ -100,8 +100,9 @@ final.loc[final['cto'] != True, 'Do they have a CTO on LI'] = False
 final['Industry'] = df3['Industries']
 final['Company Size (LI)'] = df3['Number of Employees']
 final['founded year'] = df3['Founded Date'].str.slice(0,4)
-final.loc[df3['Number of Funding Rounds'] > 0, 'Funding raised?'] = True
-final.loc[df3['Number of Funding Rounds'] == 0, 'Funding raised?'] = False
+print(final)
+# final.loc[df3['Number of Funding Rounds'] > 0, 'Funding raised?'] = True
+# final.loc[df3['Number of Funding Rounds'] == 0, 'Funding raised?'] = False
 final['Total raised'] = df3['Total Funding Amount Currency (in USD)']
 final['Number of rounds'] = df3['Number of Funding Rounds']
 final['Number of exits'] = df3['Number of Exits']
